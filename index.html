@@ -17,9 +17,9 @@
             --love-red: #ff8a80;
             --text-color: #5d4037;
             /* 狀態顏色透明度 */
-            --success-green: rgba(129, 199, 132, 0.6);
-            --undo-orange: rgba(255, 183, 77, 0.6);
-            --del-red: rgba(255, 171, 145, 0.6);
+            --success-green: rgba(129, 199, 132, 0.4);
+            --undo-orange: rgba(255, 183, 77, 0.4);
+            --del-red: rgba(255, 171, 145, 0.4);
         }
 
         body {
@@ -38,39 +38,38 @@
         }
 
         .card {
-            background: var(--soft-white);
-            /* 毛玻璃效果：這能確保卡片透明時，裡面的文字依然好讀 */
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 30px;
-            padding: 25px 20px;
-            width: 90%;
-            max-width: 380px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+    background: var(--soft-white);
+    backdrop-filter: blur(8px); /* 稍微降低模糊度，讓背景圖案更易辨識 */
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px; /* 圓角縮小一點點 */
+    padding: 15px 10px;  /* 減少上下左右的內部空間 */
+    width: 70%;          /* 從 90% 縮小到 85% */
+    max-width: 250px;    /* 最大寬度從 380px 縮小到 320px */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 
-        .big-timer { font-size: 1.4rem; color: #d81b60; font-weight: bold; margin: 10px 0; }
+        .big-timer { font-size: 1.6rem; color: #d81b60; font-weight: bold; margin: 10px 0; }
 
         .btn-group {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            width: 90%;
-            max-width: 380px;
-        }
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;           /* 縮小按鈕之間的間距 */
+    width: 85%;
+    max-width: 200px;   /* 跟隨卡片寬度 */
+}
 
         button {
             background-color: var(--primary-pink);
             backdrop-filter: blur(5px);
             border: none;
-            padding: 14px;
-            border-radius: 18px;
+            padding: 10px;
+            border-radius: 15px;
             color: white;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -155,15 +154,15 @@
     <div style="font-size: 2.5rem; margin-bottom: 10px; text-shadow: 1px 1px 10px rgba(255,255,255,0.8);">💕🥚🐶💕</div>
     
     <div class="card">
-        <p style="margin:0; font-weight:bold;">我們已相愛</p>
+        <p style="margin:0; font-weight:bold;">我們已相愛❤️</p>
         <div class="big-timer" id="together-timer">計算中...</div>
-        <div style="font-size: 0.8rem; opacity: 0.7;">💑 起點：<span id="start-date-display">2026-01-31 00:00</span></div>
+        <div style="font-size: 0.9rem; opacity: 0.9;">💑 起點：<span id="start-date-display">2026-01-31 00:00</span></div>
     </div>
 
     <div class="btn-group">
         <button onclick="openModal('listModal')" class="btn-special">🐶 狗狗與冷蛋 🥚</button>
-        <button onclick="openModal('todoModal')">❤️ 想做的事 ❤️</button>
-        <button onclick="openModal('anniversaryModal')">❤️ 新增紀念日 ❤️</button>
+        <button onclick="openModal('todoModal')"> 想做的事 </button>
+        <button onclick="openModal('anniversaryModal')"> 新增紀念日 </button>
         <button onclick="openModal('bgModal')" class="btn-outline">🖼️ 更換背景圖片</button>
     </div>
 
