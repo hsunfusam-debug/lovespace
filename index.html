@@ -8,13 +8,18 @@
     <title>🥚🐶的專屬空間💕 </title>
     <style>
         :root {
-            --primary-pink: #ffb6c1;
-            --soft-white: rgba(255, 255, 255, 0.85);
+            /* 調整主色調透明度 */
+            --primary-pink: rgba(255, 182, 193, 0.7); 
+            --primary-pink-solid: #ffb6c1;
+            /* 這裡控制主卡片的透明度：0.4 表示 40% 不透明 */
+            --soft-white: rgba(255, 255, 255, 0.4);
             --dog-brown: #5d4037;
             --love-red: #ff8a80;
             --text-color: #5d4037;
-            --success-green: #81c784;
-            --undo-orange: #ffb74d;
+            /* 狀態顏色透明度 */
+            --success-green: rgba(129, 199, 132, 0.6);
+            --undo-orange: rgba(255, 183, 77, 0.6);
+            --del-red: rgba(255, 171, 145, 0.6);
         }
 
         body {
@@ -34,14 +39,17 @@
 
         .card {
             background: var(--soft-white);
-            backdrop-filter: blur(10px);
+            /* 毛玻璃效果：這能確保卡片透明時，裡面的文字依然好讀 */
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 30px;
             padding: 25px 20px;
             width: 90%;
             max-width: 380px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             margin-bottom: 20px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .big-timer { font-size: 1.4rem; color: #d81b60; font-weight: bold; margin: 10px 0; }
@@ -56,6 +64,7 @@
 
         button {
             background-color: var(--primary-pink);
+            backdrop-filter: blur(5px);
             border: none;
             padding: 14px;
             border-radius: 18px;
@@ -63,41 +72,41 @@
             font-weight: bold;
             font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: 0.3s;
         }
 
-        button:active { transform: scale(0.95); }
+        button:active { transform: scale(0.95); background-color: var(--primary-pink-solid); }
 
-        .btn-outline { background-color: rgba(255, 255, 255, 0.8); color: var(--dog-brown); border: 1px solid var(--primary-pink); }
-        .btn-special { background-color: #f8bbd0; color: #880e4f; border: 2px solid #ad1457; }
+        .btn-outline { background-color: rgba(255, 255, 255, 0.3); color: var(--dog-brown); border: 1px solid var(--primary-pink); }
+        .btn-special { background-color: rgba(248, 187, 208, 0.6); color: #880e4f; border: 2px solid rgba(173, 20, 87, 0.2); }
 
         .modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.4); justify-content: center; align-items: center;
             z-index: 100; backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: white; border-radius: 25px;
+            background: rgba(255, 255, 255, 0.95); border-radius: 25px;
             width: 90%; max-width: 400px;
             display: flex; flex-direction: column;
             max-height: 85vh; overflow: hidden;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
         }
 
-        #scrollArea { flex: 1; overflow-y: auto; padding: 15px; background: #fdfafb; }
+        #scrollArea { flex: 1; overflow-y: auto; padding: 15px; background: rgba(253, 250, 251, 0.4); }
 
         .tab-btn-group {
-            display: flex; padding: 10px 15px; gap: 10px; background: #fff; border-bottom: 1px solid #eee;
+            display: flex; padding: 10px 15px; gap: 10px; background: rgba(255, 255, 255, 0.8); border-bottom: 1px solid #eee;
         }
         .tab-btn {
             flex: 1; padding: 8px; border-radius: 12px; font-size: 0.85rem;
-            background: #f0f0f0; color: #666; box-shadow: none;
+            background: rgba(240, 240, 240, 0.5); color: #666; box-shadow: none;
         }
-        .tab-btn.active { background: var(--primary-pink); color: white; }
+        .tab-btn.active { background: var(--primary-pink-solid); color: white; }
 
         .year-nav {
             display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0;
@@ -106,19 +115,18 @@
         .year-nav::-webkit-scrollbar { display: none; }
         
         .year-btn {
-            background: white; color: var(--primary-pink); border: 1.5px solid var(--primary-pink);
+            background: rgba(255, 255, 255, 0.5); color: var(--primary-pink-solid); border: 1.5px solid var(--primary-pink-solid);
             padding: 6px 15px; border-radius: 20px; font-size: 0.85rem; white-space: nowrap;
             min-width: 70px;
         }
-        .year-btn.active {
-            background: var(--primary-pink); color: white;
-        }
+        .year-btn.active { background: var(--primary-pink-solid); color: white; }
 
         .item-card {
-            background: white; border-radius: 15px; padding: 15px;
+            background: rgba(255, 255, 255, 0.5); border-radius: 15px; padding: 15px;
             margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            position: relative; border-left: 5px solid var(--primary-pink);
+            position: relative; border-left: 5px solid var(--primary-pink-solid);
             text-align: left;
+            backdrop-filter: blur(8px);
         }
 
         .item-card.completed { border-left-color: #ccc; opacity: 0.8; }
@@ -127,23 +135,24 @@
         .small-btn { padding: 5px 10px; font-size: 0.75rem; border-radius: 8px; cursor: pointer; border: none; }
         .btn-done { background: var(--success-green); color: white; }
         .btn-undo { background: var(--undo-orange); color: white; }
-        .btn-edit { background: #eee; color: #666; }
-        .btn-del { background: #ffab91; color: white; }
+        .btn-edit { background: rgba(238, 238, 238, 0.6); color: #666; }
+        .btn-del { background: var(--del-red); color: white; }
 
         input, textarea, select {
             width: 100%; margin: 8px 0; padding: 12px;
             border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.7);
         }
 
         .status-tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
-        .status-pending { background: #fff3e0; color: #ef6c00; }
-        .status-finished { background: #e8f5e9; color: #2e7d32; }
-        .status-expired { background: #eeeeee; color: #757575; }
+        .status-pending { background: rgba(255, 243, 224, 0.7); color: #ef6c00; }
+        .status-finished { background: rgba(232, 245, 233, 0.7); color: #2e7d32; }
+        .status-expired { background: rgba(238, 238, 238, 0.7); color: #757575; }
     </style>
 </head>
 <body>
 
-    <div style="font-size: 2.5rem; margin-bottom: 10px;">💕🥚🐶💕</div>
+    <div style="font-size: 2.5rem; margin-bottom: 10px; text-shadow: 1px 1px 10px rgba(255,255,255,0.8);">💕🥚🐶💕</div>
     
     <div class="card">
         <p style="margin:0; font-weight:bold;">我們已相愛</p>
@@ -158,6 +167,8 @@
         <button onclick="openModal('bgModal')" class="btn-outline">🖼️ 更換背景圖片</button>
     </div>
 
+    <!-- 其餘 Modal 內容與 Script 保持不變 ... -->
+    
     <!-- 1. 想做的事 Modal -->
     <div id="todoModal" class="modal">
         <div class="modal-content" style="padding:20px;">
@@ -167,12 +178,11 @@
             <textarea id="todoContent" placeholder="備註或想說的話..."></textarea>
             <p style="margin:5px 0; font-size:0.8rem;">預計日期時間：</p>
             <input type="datetime-local" id="todoTime">
-            <button onclick="saveTodo()">儲存紀錄</button>
-            <button onclick="cancelAction('todoModal')" style="background:gray; margin-top:10px;">取消</button>
+            <button onclick="saveTodo()" style="background: var(--primary-pink-solid)">儲存紀錄</button>
+            <button onclick="cancelAction('todoModal')" style="background:rgba(128, 128, 128, 0.7); margin-top:10px;">取消</button>
         </div>
     </div>
 
-    <!-- 2. 新增紀念日 Modal -->
     <div id="anniversaryModal" class="modal">
         <div class="modal-content" style="padding:20px;">
             <h3 id="anniModalTitle">❤️ 新增紀念日</h3>
@@ -182,12 +192,11 @@
                 <select id="anniMonth"><option value="">月份</option></select>
                 <select id="anniDay"><option value="">日期</option></select>
             </div>
-            <button onclick="saveAnniversary()" style="margin-top:10px;">儲存紀念日</button>
-            <button onclick="cancelAction('anniversaryModal')" style="background:gray; margin-top:10px;">取消</button>
+            <button onclick="saveAnniversary()" style="margin-top:10px; background: var(--primary-pink-solid)">儲存紀念日</button>
+            <button onclick="cancelAction('anniversaryModal')" style="background:rgba(128, 128, 128, 0.7); margin-top:10px;">取消</button>
         </div>
     </div>
 
-    <!-- 3. 列表 Modal -->
     <div id="listModal" class="modal">
         <div class="modal-content">
             <div style="padding:15px; text-align:center; border-bottom:1px solid #eee;">
@@ -206,18 +215,17 @@
                     <div id="anniContainer"></div>
                 </div>
             </div>
-            <div style="padding:15px;"><button onclick="closeModal('listModal')" style="width:100%; background:gray;">關閉清單</button></div>
+            <div style="padding:15px;"><button onclick="closeModal('listModal')" style="width:100%; background:rgba(128, 128, 128, 0.7);">關閉清單</button></div>
         </div>
     </div>
 
-    <!-- 背景設定 Modal -->
-    <div id="bgModal" class="modal"><div class="modal-content" style="padding:20px;"><h3>🖼️ 設定背景網址</h3><input type="text" id="bgInput" placeholder="https://..."><button onclick="saveBackground()">套用</button><button onclick="closeModal('bgModal')" style="background:gray; margin-top:10px;">取消</button></div></div>
+    <div id="bgModal" class="modal"><div class="modal-content" style="padding:20px;"><h3>🖼️ 設定背景網址</h3><input type="text" id="bgInput" placeholder="https://..."><button onclick="saveBackground()" style="background: var(--primary-pink-solid)">套用</button><button onclick="closeModal('bgModal')" style="background:rgba(128, 128, 128, 0.7); margin-top:10px;">取消</button></div></div>
 
     <script>
     (function(){
         const pw = "20260131";
         if(sessionStorage.getItem("isLoggedIn")!=="true"){
-            let input = prompt("請輸入專屬密碼：在一起");
+            let input = prompt("請輸入專屬密碼：在一起日(西元年月日)");
             if(input===pw) sessionStorage.setItem("isLoggedIn","true");
             else { alert("密碼錯誤"); document.body.innerHTML=""; window.stop(); }
         }
@@ -225,7 +233,7 @@
 
     const START_DATE = "2026-01-31T00:00";
     let currentViewingYear = null;
-    let isEditingFromList = false; // 追蹤是否是從清單進入修改
+    let isEditingFromList = false;
 
     const firebaseConfig = {
         apiKey: "AIzaSyBbmRP4M4Wm1TDcBjuoeF1Wm7f2JSsVAmA",
@@ -279,7 +287,6 @@
         }
     }
 
-    // 取消邏輯：如果是從清單進來的，取消後要回到清單
     function cancelAction(modalId) {
         closeModal(modalId);
         if(isEditingFromList) {
@@ -316,15 +323,14 @@
         
         save(); 
         closeModal('todoModal'); 
-        // 儲存後一律回到清單
         openModal('listModal'); 
         switchTab('todo');
         isEditingFromList = false;
     }
 
     function editTodo(idx) {
-        isEditingFromList = true; // 標記是從清單點選修改
-        closeModal('listModal'); // 關閉清單視窗
+        isEditingFromList = true;
+        closeModal('listModal');
         
         const item = data.todos[idx];
         document.getElementById('todoIdx').value = idx;
@@ -352,15 +358,14 @@
         
         save(); 
         closeModal('anniversaryModal'); 
-        // 儲存後一律回到清單
         openModal('listModal'); 
         switchTab('anni');
         isEditingFromList = false;
     }
 
     function editAnni(idx) {
-        isEditingFromList = true; // 標記是從清單點選修改
-        closeModal('listModal'); // 關閉清單視窗
+        isEditingFromList = true;
+        closeModal('listModal');
 
         const item = data.anniversaries[idx];
         document.getElementById('anniIdx').value = idx;
