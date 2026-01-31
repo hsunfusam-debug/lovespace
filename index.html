@@ -1,3 +1,4 @@
+--- START OF FILE index.html ---
 <!DOCTYPE html>
 <html lang="zh-TW">
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -99,12 +100,11 @@
         }
         .tab-btn.active { background: var(--primary-pink); color: white; }
 
-        /* 年份按鈕導航 */
         .year-nav {
             display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        .year-nav::-webkit-scrollbar { display: none; } /* Chrome */
+        .year-nav::-webkit-scrollbar { display: none; }
         
         .year-btn {
             background: white; color: var(--primary-pink); border: 1.5px solid var(--primary-pink);
@@ -169,7 +169,7 @@
             <p style="margin:5px 0; font-size:0.8rem;">預計日期時間：</p>
             <input type="datetime-local" id="todoTime">
             <button onclick="saveTodo()">儲存紀錄</button>
-            <button onclick="closeModal('todoModal')" style="background:gray; margin-top:10px;">取消</button>
+            <button onclick="cancelAction('todoModal')" style="background:gray; margin-top:10px;">取消</button>
         </div>
     </div>
 
@@ -184,7 +184,7 @@
                 <select id="anniDay"><option value="">日期</option></select>
             </div>
             <button onclick="saveAnniversary()" style="margin-top:10px;">儲存紀念日</button>
-            <button onclick="closeModal('anniversaryModal')" style="background:gray; margin-top:10px;">取消</button>
+            <button onclick="cancelAction('anniversaryModal')" style="background:gray; margin-top:10px;">取消</button>
         </div>
     </div>
 
@@ -200,7 +200,6 @@
             </div>
             <div id="scrollArea">
                 <div id="todoSection">
-                    <!-- 年份選單 -->
                     <div id="yearNav" class="year-nav"></div>
                     <div id="todoContainer"></div>
                 </div>
@@ -226,7 +225,8 @@
     })();
 
     const START_DATE = "2026-01-31T00:00";
-    let currentViewingYear = null; // 當前查看的年份
+    let currentViewingYear = null;
+    let isEditingFromList = false; // 追蹤是否是從清單進入修改
 
     const firebaseConfig = {
         apiKey: "AIzaSyBbmRP4M4Wm1TDcBjuoeF1Wm7f2JSsVAmA",
@@ -266,8 +266,27 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { 
         document.getElementById(id).style.display = 'none'; 
-        if(id==='todoModal') { document.getElementById('todoIdx').value = "-1"; document.getElementById('todoModalTitle').innerText = "❤️ 想做的事"; document.getElementById('todoTitle').value = ''; document.getElementById('todoContent').value = ''; document.getElementById('todoTime').value = ''; }
-        if(id==='anniversaryModal') { document.getElementById('anniIdx').value = "-1"; document.getElementById('anniModalTitle').innerText = "❤️ 新增紀念日"; document.getElementById('anniTitle').value = ''; }
+        if(id==='todoModal') { 
+            document.getElementById('todoIdx').value = "-1"; 
+            document.getElementById('todoModalTitle').innerText = "❤️ 想做的事"; 
+            document.getElementById('todoTitle').value = ''; 
+            document.getElementById('todoContent').value = ''; 
+            document.getElementById('todoTime').value = ''; 
+        }
+        if(id==='anniversaryModal') { 
+            document.getElementById('anniIdx').value = "-1"; 
+            document.getElementById('anniModalTitle').innerText = "❤️ 新增紀念日"; 
+            document.getElementById('anniTitle').value = ''; 
+        }
+    }
+
+    // 取消邏輯：如果是從清單進來的，取消後要回到清單
+    function cancelAction(modalId) {
+        closeModal(modalId);
+        if(isEditingFromList) {
+            openModal('listModal');
+            isEditingFromList = false;
+        }
     }
 
     function switchTab(type) {
@@ -290,20 +309,24 @@
         if(!title || !time) return alert("請填寫標題與時間");
         
         const year = time.split('-')[0];
-        currentViewingYear = year; // 儲存後自動跳轉到該年份
+        currentViewingYear = year;
 
         const item = { title, content, time, status: 'pending' };
         if(idx > -1) { item.status = data.todos[idx].status; data.todos[idx] = item; }
         else { data.todos.push(item); }
-        save(); closeModal('todoModal'); openModal('listModal'); switchTab('todo');
-    }
-
-    function toggleTodoStatus(idx) {
-        data.todos[idx].status = (data.todos[idx].status === 'completed') ? 'pending' : 'completed';
-        save();
+        
+        save(); 
+        closeModal('todoModal'); 
+        // 儲存後一律回到清單
+        openModal('listModal'); 
+        switchTab('todo');
+        isEditingFromList = false;
     }
 
     function editTodo(idx) {
+        isEditingFromList = true; // 標記是從清單點選修改
+        closeModal('listModal'); // 關閉清單視窗
+        
         const item = data.todos[idx];
         document.getElementById('todoIdx').value = idx;
         document.getElementById('todoTitle').value = item.title;
@@ -311,6 +334,11 @@
         document.getElementById('todoTime').value = item.time;
         document.getElementById('todoModalTitle').innerText = "📝 修改想做的事";
         openModal('todoModal');
+    }
+
+    function toggleTodoStatus(idx) {
+        data.todos[idx].status = (data.todos[idx].status === 'completed') ? 'pending' : 'completed';
+        save();
     }
 
     function saveAnniversary() {
@@ -322,10 +350,19 @@
         const item = { title, month: m, day: d };
         if(idx > -1) data.anniversaries[idx] = item;
         else data.anniversaries.push(item);
-        save(); closeModal('anniversaryModal'); openModal('listModal'); switchTab('anni');
+        
+        save(); 
+        closeModal('anniversaryModal'); 
+        // 儲存後一律回到清單
+        openModal('listModal'); 
+        switchTab('anni');
+        isEditingFromList = false;
     }
 
     function editAnni(idx) {
+        isEditingFromList = true; // 標記是從清單點選修改
+        closeModal('listModal'); // 關閉清單視窗
+
         const item = data.anniversaries[idx];
         document.getElementById('anniIdx').value = idx;
         document.getElementById('anniTitle').value = item.title;
@@ -368,7 +405,6 @@
         const anniContainer = document.getElementById('anniContainer');
         if(!todoContainer) return;
 
-        // --- 1. 想做的事 (按年份分類按鈕) ---
         const groupedTodos = {};
         const years = [];
         data.todos.forEach((item, originalIdx) => {
@@ -381,18 +417,14 @@
         });
 
         years.sort();
-        
-        // 如果沒有選擇過年份，預設選最新的一個
         if(!currentViewingYear && years.length > 0) currentViewingYear = years[years.length - 1];
 
-        // 渲染年份按鈕
         let navHtml = '';
         years.forEach(y => {
             navHtml += `<button class="year-btn ${currentViewingYear === y ? 'active' : ''}" onclick="setYearView('${y}')">${y} 年</button>`;
         });
         yearNav.innerHTML = navHtml;
 
-        // 渲染清單
         let todoHtml = '';
         if(years.length === 0) {
             todoHtml = '<p style="color:#999; text-align:center; margin-top:20px;">尚無想做的事</p>';
@@ -404,7 +436,7 @@
                 const isPast = diff < 0;
                 const isDone = item.status === 'completed';
                 
-                let statusText = isDone ? '已完成' : (isPast ? '已逾期' : '進行中');
+                let statusText = isDone ? '已完成' : (isPast ? '已結束' : '進行中');
                 let statusClass = isDone ? 'status-finished' : (isPast ? 'status-expired' : 'status-pending');
                 let timeInfo = isDone ? '✨ 任務達成！' : (isPast ? '⌛ 已結束' : `⏳ 剩餘：${formatDiff(diff)}`);
 
@@ -429,7 +461,6 @@
         }
         todoContainer.innerHTML = todoHtml;
 
-        // --- 2. 紀念日 (按剩餘天數排序，無標題) ---
         const now = new Date();
         const anniWithDiff = data.anniversaries.map((item, originalIdx) => {
             let next = new Date(now.getFullYear(), item.month-1, item.day);
