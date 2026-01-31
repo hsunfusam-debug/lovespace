@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥚🐶的專屬空間💕 </title>
+    <style>
+        :root {
+            --primary-pink: #ffb6c1;
+            --soft-white: rgba(255, 255, 255, 0.85);
+            --dog-brown: #5d4037;
+            --love-red: #ff8a80;
+            --text-color: #5d4037;
+            --success-green: #81c784;
+            --undo-orange: #ffb74d;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-image: url('https://i.postimg.cc/DZnrLcTz/S-70565940.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: var(--soft-white);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 25px 20px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .big-timer { font-size: 1.4rem; color: #d81b60; font-weight: bold; margin: 10px 0; }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            width: 90%;
+            max-width: 380px;
+        }
+
+        button {
+            background-color: var(--primary-pink);
+            border: none;
+            padding: 14px;
+            border-radius: 18px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-outline { background-color: rgba(255, 255, 255, 0.8); color: var(--dog-brown); border: 1px solid var(--primary-pink); }
+        .btn-special { background-color: #f8bbd0; color: #880e4f; border: 2px solid #ad1457; }
+
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+            z-index: 100; backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white; border-radius: 25px;
+            width: 90%; max-width: 400px;
+            display: flex; flex-direction: column;
+            max-height: 85vh; overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        #scrollArea { flex: 1; overflow-y: auto; padding: 15px; background: #fdfafb; }
+
+        .tab-btn-group {
+            display: flex; padding: 10px 15px; gap: 10px; background: #fff; border-bottom: 1px solid #eee;
+        }
+        .tab-btn {
+            flex: 1; padding: 8px; border-radius: 12px; font-size: 0.85rem;
+            background: #f0f0f0; color: #666; box-shadow: none;
+        }
+        .tab-btn.active { background: var(--primary-pink); color: white; }
+
+        /* 年份按鈕導航 */
+        .year-nav {
+            display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 15px 0;
+            scrollbar-width: none; /* Firefox */
+        }
+        .year-nav::-webkit-scrollbar { display: none; } /* Chrome */
+        
+        .year-btn {
+            background: white; color: var(--primary-pink); border: 1.5px solid var(--primary-pink);
+            padding: 6px 15px; border-radius: 20px; font-size: 0.85rem; white-space: nowrap;
+            min-width: 70px;
+        }
+        .year-btn.active {
+            background: var(--primary-pink); color: white;
+        }
+
+        .item-card {
+            background: white; border-radius: 15px; padding: 15px;
+            margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative; border-left: 5px solid var(--primary-pink);
+            text-align: left;
+        }
+
+        .item-card.completed { border-left-color: #ccc; opacity: 0.8; }
+
+        .action-btns { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+        .small-btn { padding: 5px 10px; font-size: 0.75rem; border-radius: 8px; cursor: pointer; border: none; }
+        .btn-done { background: var(--success-green); color: white; }
+        .btn-undo { background: var(--undo-orange); color: white; }
+        .btn-edit { background: #eee; color: #666; }
+        .btn-del { background: #ffab91; color: white; }
+
+        input, textarea, select {
+            width: 100%; margin: 8px 0; padding: 12px;
+            border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box;
+        }
+
+        .status-tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+        .status-pending { background: #fff3e0; color: #ef6c00; }
+        .status-finished { background: #e8f5e9; color: #2e7d32; }
+        .status-expired { background: #eeeeee; color: #757575; }
+    </style>
+</head>
+<body>
+
+    <div style="font-size: 2.5rem; margin-bottom: 10px;">💕🥚🐶💕</div>
+    
+    <div class="card">
+        <p style="margin:0; font-weight:bold;">我們已相愛</p>
+        <div class="big-timer" id="together-timer">計算中...</div>
+        <div style="font-size: 0.8rem; opacity: 0.7;">💑 起點：<span id="start-date-display">2026-01-31 00:00</span></div>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="openModal('todoModal')">❤️ 想做的事 ❤️</button>
+        <button onclick="openModal('anniversaryModal')">❤️ 新增紀念日 ❤️</button>
+        <button onclick="openModal('listModal')" class="btn-special">🐶 狗狗與冷蛋 🥚</button>
+        <button onclick="openModal('bgModal')" class="btn-outline">🖼️ 更換背景圖片</button>
+    </div>
+
+    <!-- 1. 想做的事 Modal -->
+    <div id="todoModal" class="modal">
+        <div class="modal-content" style="padding:20px;">
+            <h3 id="todoModalTitle">❤️ 想做的事</h3>
+            <input type="hidden" id="todoIdx" value="-1">
+            <input type="text" id="todoTitle" placeholder="想一起做什麼？">
+            <textarea id="todoContent" placeholder="備註或想說的話..."></textarea>
+            <p style="margin:5px 0; font-size:0.8rem;">預計日期時間：</p>
+            <input type="datetime-local" id="todoTime">
+            <button onclick="saveTodo()">儲存紀錄</button>
+            <button onclick="closeModal('todoModal')" style="background:gray; margin-top:10px;">取消</button>
+        </div>
+    </div>
+
+    <!-- 2. 新增紀念日 Modal -->
+    <div id="anniversaryModal" class="modal">
+        <div class="modal-content" style="padding:20px;">
+            <h3 id="anniModalTitle">❤️ 新增紀念日</h3>
+            <input type="hidden" id="anniIdx" value="-1">
+            <input type="text" id="anniTitle" placeholder="紀念日名稱">
+            <div style="display:flex; gap:10px;">
+                <select id="anniMonth"><option value="">月份</option></select>
+                <select id="anniDay"><option value="">日期</option></select>
+            </div>
+            <button onclick="saveAnniversary()" style="margin-top:10px;">儲存紀念日</button>
+            <button onclick="closeModal('anniversaryModal')" style="background:gray; margin-top:10px;">取消</button>
+        </div>
+    </div>
+
+    <!-- 3. 列表 Modal -->
+    <div id="listModal" class="modal">
+        <div class="modal-content">
+            <div style="padding:15px; text-align:center; border-bottom:1px solid #eee;">
+                <h3 style="margin:0;">🐶 狗狗與冷蛋 🥚</h3>
+            </div>
+            <div class="tab-btn-group">
+                <button id="tabTodo" class="tab-btn active" onclick="switchTab('todo')">📌 想做的事</button>
+                <button id="tabAnni" class="tab-btn" onclick="switchTab('anni')">🎉 紀念日</button>
+            </div>
+            <div id="scrollArea">
+                <div id="todoSection">
+                    <!-- 年份選單 -->
+                    <div id="yearNav" class="year-nav"></div>
+                    <div id="todoContainer"></div>
+                </div>
+                <div id="anniSection" style="display:none;">
+                    <div id="anniContainer"></div>
+                </div>
+            </div>
+            <div style="padding:15px;"><button onclick="closeModal('listModal')" style="width:100%; background:gray;">關閉清單</button></div>
+        </div>
+    </div>
+
+    <!-- 背景設定 Modal -->
+    <div id="bgModal" class="modal"><div class="modal-content" style="padding:20px;"><h3>🖼️ 設定背景網址</h3><input type="text" id="bgInput" placeholder="https://..."><button onclick="saveBackground()">套用</button><button onclick="closeModal('bgModal')" style="background:gray; margin-top:10px;">取消</button></div></div>
+
+    <script>
+    (function(){
+        const pw = "20260131";
+        if(sessionStorage.getItem("isLoggedIn")!=="true"){
+            let input = prompt("請輸入專屬密碼：");
+            if(input===pw) sessionStorage.setItem("isLoggedIn","true");
+            else { alert("密碼錯誤"); document.body.innerHTML=""; window.stop(); }
+        }
+    })();
+
+    const START_DATE = "2026-01-31T00:00";
+    let currentViewingYear = null; // 當前查看的年份
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBbmRP4M4Wm1TDcBjuoeF1Wm7f2JSsVAmA",
+        authDomain: "lovespace-f9971.firebaseapp.com",
+        databaseURL: "https://lovespace-f9971-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "lovespace-f9971",
+        storageBucket: "lovespace-f9971.firebasestorage.app",
+        messagingSenderId: "375375326712",
+        appId: "1:375375326712:web:dab5443870cc182e0d3a0d"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let data = { bgUrl: '', todos: [], anniversaries: [] };
+    const urlParams = new URLSearchParams(window.location.search);
+    let roomId = urlParams.get('room') || localStorage.getItem('lastRoomId') || Math.random().toString(36).substring(2, 10);
+    window.history.replaceState(null, null, "?room=" + roomId);
+    localStorage.setItem('lastRoomId', roomId);
+    const roomRef = db.ref('rooms/' + roomId);
+
+    const monthSel = document.getElementById('anniMonth');
+    const daySel = document.getElementById('anniDay');
+    for(let i=1; i<=12; i++) monthSel.options.add(new Option(i+'月', i));
+    for(let i=1; i<=31; i++) daySel.options.add(new Option(i+'日', i));
+
+    roomRef.on('value', (snap) => {
+        const cloud = snap.val();
+        if(cloud) {
+            data = cloud;
+            if(!data.todos) data.todos = [];
+            if(!data.anniversaries) data.anniversaries = [];
+            applySettings();
+        }
+    });
+
+    function save() { roomRef.set(data); }
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none'; 
+        if(id==='todoModal') { document.getElementById('todoIdx').value = "-1"; document.getElementById('todoModalTitle').innerText = "❤️ 想做的事"; document.getElementById('todoTitle').value = ''; document.getElementById('todoContent').value = ''; document.getElementById('todoTime').value = ''; }
+        if(id==='anniversaryModal') { document.getElementById('anniIdx').value = "-1"; document.getElementById('anniModalTitle').innerText = "❤️ 新增紀念日"; document.getElementById('anniTitle').value = ''; }
+    }
+
+    function switchTab(type) {
+        document.getElementById('todoSection').style.display = type==='todo'?'block':'none';
+        document.getElementById('anniSection').style.display = type==='anni'?'block':'none';
+        document.getElementById('tabTodo').className = 'tab-btn' + (type==='todo'?' active':'');
+        document.getElementById('tabAnni').className = 'tab-btn' + (type==='anni'?' active':'');
+    }
+
+    function setYearView(year) {
+        currentViewingYear = year;
+        renderLists();
+    }
+
+    function saveTodo() {
+        const title = document.getElementById('todoTitle').value;
+        const content = document.getElementById('todoContent').value;
+        const time = document.getElementById('todoTime').value;
+        const idx = parseInt(document.getElementById('todoIdx').value);
+        if(!title || !time) return alert("請填寫標題與時間");
+        
+        const year = time.split('-')[0];
+        currentViewingYear = year; // 儲存後自動跳轉到該年份
+
+        const item = { title, content, time, status: 'pending' };
+        if(idx > -1) { item.status = data.todos[idx].status; data.todos[idx] = item; }
+        else { data.todos.push(item); }
+        save(); closeModal('todoModal'); openModal('listModal'); switchTab('todo');
+    }
+
+    function toggleTodoStatus(idx) {
+        data.todos[idx].status = (data.todos[idx].status === 'completed') ? 'pending' : 'completed';
+        save();
+    }
+
+    function editTodo(idx) {
+        const item = data.todos[idx];
+        document.getElementById('todoIdx').value = idx;
+        document.getElementById('todoTitle').value = item.title;
+        document.getElementById('todoContent').value = item.content;
+        document.getElementById('todoTime').value = item.time;
+        document.getElementById('todoModalTitle').innerText = "📝 修改想做的事";
+        openModal('todoModal');
+    }
+
+    function saveAnniversary() {
+        const title = document.getElementById('anniTitle').value;
+        const m = document.getElementById('anniMonth').value;
+        const d = document.getElementById('anniDay').value;
+        const idx = parseInt(document.getElementById('anniIdx').value);
+        if(!title || !m || !d) return alert("請填寫完整資訊");
+        const item = { title, month: m, day: d };
+        if(idx > -1) data.anniversaries[idx] = item;
+        else data.anniversaries.push(item);
+        save(); closeModal('anniversaryModal'); openModal('listModal'); switchTab('anni');
+    }
+
+    function editAnni(idx) {
+        const item = data.anniversaries[idx];
+        document.getElementById('anniIdx').value = idx;
+        document.getElementById('anniTitle').value = item.title;
+        document.getElementById('anniMonth').value = item.month;
+        document.getElementById('anniDay').value = item.day;
+        document.getElementById('anniModalTitle').innerText = "📝 修改紀念日";
+        openModal('anniversaryModal');
+    }
+
+    function saveBackground() { data.bgUrl = document.getElementById('bgInput').value; save(); closeModal('bgModal'); }
+    function applySettings() { if(data.bgUrl) document.body.style.backgroundImage = `url('${data.bgUrl}')`; renderLists(); }
+
+    function updateTimers() {
+        const diff = new Date() - new Date(START_DATE);
+        const timerEl = document.getElementById('together-timer');
+        if(timerEl) timerEl.innerText = formatTogetherDiff(diff);
+        renderLists();
+    }
+
+    function formatTogetherDiff(ms) {
+        const total = Math.floor(Math.abs(ms)/1000);
+        const d = Math.floor(total/86400);
+        const h = Math.floor((total%86400)/3600);
+        const m = Math.floor((total%3600)/60);
+        return `${ms<0?"倒數 ":""}${d}天 ${h}時 ${m}分`;
+    }
+
+    function formatDiff(ms) {
+        if (ms <= 0) return "0天 0時 0分";
+        const total = Math.floor(ms/1000);
+        const d = Math.floor(total/86400);
+        const h = Math.floor((total%86400)/3600);
+        const m = Math.floor((total%3600)/60);
+        return `${d}天 ${h}時 ${m}分`;
+    }
+
+    function renderLists() {
+        const todoContainer = document.getElementById('todoContainer');
+        const yearNav = document.getElementById('yearNav');
+        const anniContainer = document.getElementById('anniContainer');
+        if(!todoContainer) return;
+
+        // --- 1. 想做的事 (按年份分類按鈕) ---
+        const groupedTodos = {};
+        const years = [];
+        data.todos.forEach((item, originalIdx) => {
+            const year = item.time.split('-')[0];
+            if(!groupedTodos[year]) {
+                groupedTodos[year] = [];
+                years.push(year);
+            }
+            groupedTodos[year].push({ ...item, originalIdx });
+        });
+
+        years.sort();
+        
+        // 如果沒有選擇過年份，預設選最新的一個
+        if(!currentViewingYear && years.length > 0) currentViewingYear = years[years.length - 1];
+
+        // 渲染年份按鈕
+        let navHtml = '';
+        years.forEach(y => {
+            navHtml += `<button class="year-btn ${currentViewingYear === y ? 'active' : ''}" onclick="setYearView('${y}')">${y} 年</button>`;
+        });
+        yearNav.innerHTML = navHtml;
+
+        // 渲染清單
+        let todoHtml = '';
+        if(years.length === 0) {
+            todoHtml = '<p style="color:#999; text-align:center; margin-top:20px;">尚無想做的事</p>';
+        } else if(groupedTodos[currentViewingYear]) {
+            groupedTodos[currentViewingYear].forEach(item => {
+                const targetTime = new Date(item.time);
+                const now = new Date();
+                const diff = targetTime - now;
+                const isPast = diff < 0;
+                const isDone = item.status === 'completed';
+                
+                let statusText = isDone ? '已完成' : (isPast ? '已逾期' : '進行中');
+                let statusClass = isDone ? 'status-finished' : (isPast ? 'status-expired' : 'status-pending');
+                let timeInfo = isDone ? '✨ 任務達成！' : (isPast ? '⌛ 已結束' : `⏳ 剩餘：${formatDiff(diff)}`);
+
+                todoHtml += `
+                    <div class="item-card ${isDone ? 'completed' : ''}">
+                        <div style="display:flex; justify-content:space-between;">
+                            <strong style="font-size:1.1rem;">${item.title}</strong>
+                            <span class="status-tag ${statusClass}">${statusText}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:#888; margin-top:5px;">⏰ ${item.time.replace('T', ' ')}</div>
+                        <small style="display:block; color:#666; margin:5px 0; border-top:1px dashed #eee; padding-top:5px;">${item.content || '無備註'}</small>
+                        <div style="font-size:0.8rem; color:#d81b60; font-weight:bold;">${timeInfo}</div>
+                        <div class="action-btns">
+                            <button class="small-btn ${isDone ? 'btn-undo' : 'btn-done'}" onclick="toggleTodoStatus(${item.originalIdx})">
+                                ${isDone ? '↩️ 未完成' : '✅ 標記完成'}
+                            </button>
+                            <button class="small-btn btn-edit" onclick="editTodo(${item.originalIdx})">修改</button>
+                            <button class="small-btn btn-del" onclick="deleteItem('todos', ${item.originalIdx})">刪除</button>
+                        </div>
+                    </div>`;
+            });
+        }
+        todoContainer.innerHTML = todoHtml;
+
+        // --- 2. 紀念日 (按剩餘天數排序，無標題) ---
+        const now = new Date();
+        const anniWithDiff = data.anniversaries.map((item, originalIdx) => {
+            let next = new Date(now.getFullYear(), item.month-1, item.day);
+            if(next < now) next.setFullYear(now.getFullYear() + 1);
+            return { ...item, originalIdx, diff: next - now };
+        });
+
+        anniWithDiff.sort((a, b) => a.diff - b.diff);
+
+        let anniHtml = '';
+        if(anniWithDiff.length === 0) {
+            anniHtml = '<p style="color:#999; text-align:center; margin-top:20px;">尚無紀念日</p>';
+        } else {
+            anniWithDiff.forEach(item => {
+                anniHtml += `
+                    <div class="item-card">
+                        <strong style="font-size:1.1rem;">${item.title} (${item.month}/${item.day})</strong>
+                        <div style="font-size:0.8rem; color:#d81b60; font-weight:bold; margin-top:5px;">🎂 距離下次還有：${formatDiff(item.diff)}</div>
+                        <div class="action-btns">
+                            <button class="small-btn btn-edit" onclick="editAnni(${item.originalIdx})">修改</button>
+                            <button class="small-btn btn-del" onclick="deleteItem('anniversaries', ${item.originalIdx})">刪除</button>
+                        </div>
+                    </div>`;
+            });
+        }
+        anniContainer.innerHTML = anniHtml;
+    }
+
+    function deleteItem(type, idx) {
+        if(confirm('確定要刪除嗎？')) { data[type].splice(idx, 1); save(); }
+    }
+
+    setInterval(updateTimers, 10000);
+    updateTimers();
+</script>
+</body>
+</html>
